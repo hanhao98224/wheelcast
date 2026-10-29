@@ -530,7 +530,11 @@ async function main() {
   ];
   const failedCrossChecks = crossChecks.filter(([, want, got]) => want !== got);
   const ok =
-    result.mismatchCount === 0 && failedCrossChecks.length === 0 && orderingProblems.length === 0 && initialMatches;
+    result.mismatchCount === 0 &&
+    failedCrossChecks.length === 0 &&
+    orderingProblems.length === 0 &&
+    oversized.length === 0 &&
+    initialMatches;
   const exitCode = ok ? 0 : 1;
 
   if (asJson) {

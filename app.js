@@ -147,22 +147,26 @@ function renderParity() {
   const p = state.parity;
   const card = $("verdict-card");
   if (!p) return;
-  const okCount = p.rounds - p.unitMismatches - p.difficultyMismatches;
+  const okCount = p.steps.filter((step) => step.unitsOk && step.difficultyOk).length;
 
   card.dataset.state = p.ok ? "pass" : "fail";
   $("parity-ok").textContent = fmtInt(p.ok ? p.rounds : okCount);
   $("parity-total").textContent = fmtInt(p.rounds);
   $("parity-line").textContent = p.ok
-    ? "Every recorded round reproduced exactly: block units and difficulty both match the contract."
-    : p.unitMismatches + " block-unit mismatch(es), " + p.difficultyMismatches + " difficulty mismatch(es). See the table.";
+    ? "Every recorded round reproduced exactly from the configured initial difficulty: block units and difficulty both match the contract."
+    : (state.parityRecoveredMatchesConfig ? "" : "Configured initial difficulty is inconsistent with the first recorded round. ") +
+      p.unitMismatches + " block-unit mismatch(es), " + p.difficultyMismatches + " difficulty mismatch(es). See the table.";
 
   $("d-initial").textContent = fmtInt(state.config?.initialWorkPerThousandBlocks ?? "-");
   const recovered = state.recoveredDifficulty;
-  const matches = recovered != null && recovered === Number(state.config?.initialWorkPerThousandBlocks ?? NaN);
-  $("d-recovered").textContent = recovered == null ? "not recoverable" : fmtInt(recovered) + (matches ? "  ✓" : "  ≠");
+  const matches = state.parityRecoveredMatchesConfig;
+  const recoveredText = recovered == null ? "not recoverable" : recovered.low === recovered.high
+    ? fmtInt(recovered.low)
+    : fmtInt(recovered.low) + "–" + fmtInt(recovered.high);
+  $("d-recovered").textContent = recoveredText + (matches ? "  ✓" : "  ≠");
   $("d-recovered").title = matches
-    ? "Derived only from the first recorded round; equals the published initial difficulty."
-    : "Derived from the first recorded round; differs from the published initial difficulty.";
+    ? "The initial difficulty reported by the API is within the range derived from the first recorded round."
+    : "The initial difficulty reported by the API is outside the range derived from the first recorded round.";
   $("d-current").textContent = fmtInt(p.finalDifficulty);
 
   const strip = $("parity-strip");
@@ -377,12 +381,15 @@ async function loadIdentity() {
     genesisTimestamp: core.configuration?.genesisTimestamp,
     roundDuration: core.configuration?.roundDuration ?? 600,
     maxWorkPerRound: core.configuration?.maxWorkPerRound ?? 10000,
-    initialWorkPerThousandBlocks: core.configuration?.initialWorkPerThousandBlocks ?? 10000,
+    initialWorkPerThousandBlocks: core.configuration?.initialWorkPerThousandBlocks,
   };
   state.coreAddress = core.identities?.core;
   state.deploymentBlock = Number(core.chain?.deploymentBlock);
   if (!state.coreAddress || !Number.isFinite(state.deploymentBlock)) {
     throw new ChainError("The API did not report a core address and deployment block");
+  }
+  if (state.config.initialWorkPerThousandBlocks == null) {
+    throw new ChainError("The API did not report an initial difficulty");
   }
 }
 
@@ -418,13 +425,13 @@ async function loadHistory(force = false) {
     const first = rounds[0];
     const initial = BigInt(state.config.initialWorkPerThousandBlocks);
     const recovered = recoverPriorDifficulty(first.work, first.difficulty);
-    state.recoveredDifficulty = recovered == null ? null : Number(recovered);
+    state.recoveredDifficulty = recovered;
 
-    // Start from the recovered value when it exists so the audit is independent
-    // of the published constant, then confirm the two agree.
-    const start = recovered ?? initial;
-    state.parity = replay(rounds, start);
-    state.parityRecoveredMatchesConfig = recovered != null && recovered === initial;
+    // The configuration is the claim being checked. Replaying from a recovered
+    // replacement would hide a disagreement between that claim and the logs.
+    state.parity = replay(rounds, initial);
+    state.parityRecoveredMatchesConfig = recovered != null && initial >= recovered.low && initial <= recovered.high;
+    state.parity.ok = state.parity.ok && state.parityRecoveredMatchesConfig;
 
     renderParity();
     renderForecast();
