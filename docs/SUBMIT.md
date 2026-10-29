@@ -49,22 +49,33 @@ login. If a prompt asks for a transaction, close it and start over.
 5. You should land on your dashboard with the wallet address and the linked handle
    visible. If either is missing, finish that step before continuing.
 
-## 2. Go to the Code lane
+> Status check first: at the time this was written the Code lane is **not open yet**.
+> The Genesis page lists three ways to earn Aura - CLOUT, CODE, CAPITAL - and only
+> CLOUT is live; CODE reads "Not open yet", and `/genesis/code/new` returns a 404.
+> Do steps 1 and 2 now, then come back when the lane opens.
 
-From the dashboard, open the **Code** lane. This is the track for software built on
-Squeekchain, as opposed to the other lanes (hardware, art, community, and so on).
-Inside it you will see the available tracks for the current round.
+## 2. Log in and reach the Code lane
+
+After step 1 you have a Genesis profile: a verified wallet plus a linked X account.
+The Code lane lives at `/genesis/code` once it opens, and submitting a project
+requires that profile - the form is gated on it, so there is nothing to prepare on
+the Squeekchain side beyond finishing step 1.
 
 ## 3. Choose "Independent"
 
-Pick **Independent**.
+The Code lane offers exactly two options, and the wording on the page is:
 
-- *Independent* means the project is your own work, built against the public
-  protocol, without being a fork of an official starter or a continuation of
-  someone else's repository.
-- If you are offered a choice between "Independent" and a guided/template track,
-  take Independent: Wheelcast implements the protocol arithmetic itself, which is
-  exactly what this track is for.
+- **IMD** - "Submit a job built with the IMD swarm. The payer wallet must be verified
+  on your profile." This attributes the project to the wallet that *paid* for an
+  IMD job, so it is the wrong option here.
+- **Independent** - "Submit a public GitHub project and verify repository control
+  with a challenge file."
+
+Pick **Independent**. Wheelcast is a public GitHub repository whose control you can
+prove with a challenge file, which is exactly what this option asks for. Note what
+the page says about what it proves: repository *control*, not authorship - so the
+challenge line is about proving the repo is yours to submit, not about proving you
+typed every character.
 
 ## 4. Fill the form
 
@@ -173,8 +184,8 @@ Wheelcast turns Squeekchain's public API and Sepolia logs into a live instrument
 panel: current wheel activity, the open round, settled rounds, cumulative work,
 block units, height and the difficulty in force. It keeps the whole event history in
 the browser, so it can also forecast: it resamples observed per-round work in a Monte
-Carlo loop to estimate when the next Squeek block completes and how difficulty will
-drift as a result. Every number on screen is tied to the round that produced it, and
+Carlo loop to estimate how many blocks the hamster will complete over the next 1, 6
+and 24 hours, and how difficulty will drift as a result. Every number on screen is tied to the round that produced it, and
 the same page shows the replay that reproduces the contract's totals, so the forecast
 sits next to the evidence rather than on top of it.
 ```
