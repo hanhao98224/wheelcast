@@ -170,16 +170,17 @@ Pick one. They differ in emphasis, not in claims. All three are 60-140 words.
 **A. Parity first (recommended for a protocol reviewer)**
 
 ```text
-Wheelcast is an independent verifier for Squeekchain's on-chain record. On load it
-reads /v1/core for the current SqueekCore address, deployment block and initial
-difficulty, pulls every RoundRecorded event with eth_getLogs, decodes the logs by
-hand, and replays the whitepaper's integer rules: blockUnits += floor(w * 10^12 / D),
-the one-thirtieth difficulty update, and height = floor(blockUnits / 10^9). Each
-round's derived cumulativeBlockUnits and workPerThousandBlocks is compared against
-the value SqueekCore actually emitted. The result is a public parity report rather
-than a dashboard: 71 rounds checked, 0 mismatches at the time of writing. Because the
-arithmetic is implemented from the paper and not called from the contract, a
-mismatch means the deployment and the document disagree.
+Wheelcast is an independent verifier for Squeekchain's on-chain record. It reads
+/v1/core for the live SqueekCore address and deployment block, decodes every
+RoundRecorded event itself, and replays the whitepaper's integer rules - blockUnits
++= floor(w * 10^12 / D), the one-thirtieth difficulty update, height = floor(blockUnits
+/ 10^9) - instead of calling the contract's own view functions. Each round's derived
+cumulativeBlockUnits and workPerThousandBlocks is compared with what SqueekCore
+emitted; every recorded round reproduces exactly, and the initial difficulty is
+recovered from the first round rather than assumed. It also exports the complete round
+ledger as a checksummed ZIP - active, certified zero-work and still-unknown rounds kept
+distinct - which replays offline with no API and no RPC. Because the arithmetic comes
+from the paper, a mismatch means the deployment and the document disagree.
 ```
 
 **B. Live view and forecast**
