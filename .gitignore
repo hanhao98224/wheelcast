@@ -48,3 +48,7 @@ scratch/
 
 # Local overrides
 *.local
+
+# Downloaded evidence snapshots
+wheelcast-*.zip
+wheelcast-rounds-*.csv

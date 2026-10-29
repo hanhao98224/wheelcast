@@ -109,6 +109,51 @@
         </div>
       </section>
 
+      <section class="card" id="archive-card" aria-labelledby="archive-title">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">complete round record</p>
+            <h2 id="archive-title">Take the evidence with you.</h2>
+          </div>
+          <span class="chip">12 confirmations</span>
+        </div>
+        <p class="note">
+          Build a snapshot of the Core ledger, including active rounds, certified zero-work
+          rounds and rounds still unknown. The ZIP contains raw evidence, CSV, JSONL and
+          a SHA-256 manifest. No wallet or payment is needed.
+        </p>
+        <div class="archive-actions">
+          <button class="ghost archive-primary" id="archive-build" type="button">build confirmed snapshot</button>
+          <button class="ghost" id="archive-zip" type="button" disabled>download ZIP</button>
+          <button class="ghost" id="archive-csv" type="button" disabled>download CSV</button>
+        </div>
+        <p id="archive-status" class="note archive-status" role="status" aria-live="polite">
+          Ready to read the confirmed history. Existing live panels remain separate from this snapshot.
+        </p>
+        <div id="archive-summary" hidden>
+          <dl class="archive-counts">
+            <div><dt>active rounds</dt><dd id="archive-active">-</dd></div>
+            <div><dt>certified zero rounds</dt><dd id="archive-zero">-</dd></div>
+            <div><dt>unknown rounds</dt><dd id="archive-unknown">-</dd></div>
+            <div><dt>snapshot block</dt><dd id="archive-snapshot">-</dd></div>
+          </dl>
+          <p class="archive-hash" id="archive-hash"></p>
+        </div>
+        <div class="archive-offline">
+          <label for="archive-input">Replay a downloaded ZIP locally</label>
+          <input id="archive-input" type="file" accept=".zip,application/zip" />
+          <p class="note">
+            The selected file stays in your browser. For a fully disconnected check, use
+            <code>node archive.mjs verify your-snapshot.zip</code> from the
+            <a href="https://github.com/hanhao98224/wheelcast/blob/main/docs/ARCHIVES.md">repository</a>.
+          </p>
+        </div>
+        <p class="note archive-scope">
+          Offline replay checks the included evidence and arithmetic. It does not independently
+          authenticate that evidence to Ethereum or verify the physical sensor.
+        </p>
+      </section>
+
       <section class="card" id="deploy-card">
         <div class="card-head">
           <div>
@@ -195,5 +240,6 @@
     </template>
 
     <script type="module" src="./app.js"></script>
+    <script type="module" src="./archive-ui.js"></script>
   </body>
 </html>

@@ -1,17 +1,19 @@
 # Wheelcast
 
 Wheelcast is a zero-dependency static site for **Squeekchain**, a hamster-powered
-proof-of-work toychain on Ethereum Sepolia. It does three things:
+proof-of-work toychain on Ethereum Sepolia. It does four things:
 
 1. shows the live state of the wheel, the rounds and the Squeek block count;
 2. **replays every `RoundRecorded` event from the deployment block** and re-derives
    the chain's own block accounting from the whitepaper's integer rules, comparing
    the result with what `SqueekCore` actually emitted;
 3. forecasts when the next Squeek block completes, by resampling the observed
-   per-round work.
+   per-round work;
+4. exports complete confirmed Core round evidence, including certified zero-work
+   and unknown rounds, and replays the downloaded ZIP entirely offline.
 
-There is no build step, no bundler and no dependency: static files, one standalone
-verification script, and the public API.
+There is no build step, no bundler and no dependency: static files, Node command-line
+tools, and public API/RPC data.
 
 ## What Squeekchain is
 
@@ -36,6 +38,7 @@ Squeekchain runs on Sepolia only. Testnet SQK and Squeeks have no monetary value
 | Parity | replayed locally | derived vs emitted `cumulativeBlockUnits` and `workPerThousandBlocks` |
 | Deployment record | `/v1/core` vs the published docs record | eight configuration fields side by side: which agree, which do not |
 | Forecast | Monte Carlo over observed rounds | distribution of blocks completed over the next 1 / 6 / 24 hours (P10, P50, P90) |
+| Round archive | fixed-block RPC state and Core events | downloadable evidence ZIP, full round CSV and local/offline replay |
 
 ## The parity check
 
@@ -140,6 +143,24 @@ widest allowed span, shrinks the range when a request is refused, and rotates to
 next endpoint when the range is already small. The report names every endpoint that
 actually served logs.
 
+## Complete round archives
+
+The archive controls download a ZIP containing the raw evidence, a manifest,
+JSONL logs and a full round CSV. `BatchSettled` certifies zero-work spans; rounds
+after that certified frontier remain **unknown**, with empty numeric CSV fields.
+Capture pins configuration, state and logs to one Sepolia block at least 12
+confirmations behind the head, then rechecks its hash.
+
+```sh
+node archive.mjs export /tmp/wheelcast-core.zip
+node archive.mjs verify /tmp/wheelcast-core.zip  # no network requests
+```
+
+Export refuses to overwrite an existing file. Verification checks checksums and
+replays the included evidence; it does not independently prove Ethereum provenance
+or sensor truth. See [the archive guide](docs/ARCHIVES.md) for the format, free RPC
+configuration, offline verification and trust limits.
+
 ## Data sources
 
 | Source | Used for |
@@ -149,6 +170,7 @@ actually served logs.
 | `https://api.squeekchain.com/v1/settlements` | settlement history: work added, completed block range, transaction hashes |
 | `https://api.squeekchain.com/v1/economy/state` | SQK supply and issuance schedule, NFT power |
 | Sepolia `eth_getLogs` | the `RoundRecorded` events the replay is built from |
+| Fixed-block Sepolia `eth_call` and `eth_getLogs` | archive configuration, state, initialization and complete settlement batches |
 | `https://docs.squeekchain.com/whitepaper.md` | the integer rules being tested |
 
 The core address and deployment block are **not hardcoded**. They are read from
@@ -168,6 +190,8 @@ with 2 topics and 5 data words.
 | `styles.css` | styles |
 | `lib/` | modules the page uses for chain reads and the protocol arithmetic |
 | `verify.mjs` | standalone parity check, no imports from `lib/` |
+| `archive.mjs` | confirmed Core archive export and fully offline ZIP verification |
+| `docs/ARCHIVES.md` | archive format, capture/replay behavior and trust limits |
 | `docs/SUBMIT.md` | submission walkthrough for the Squeekchain Genesis code lane |
 | `package.json` | `"type": "module"`, private, no dependencies |
 | `.nojekyll` | stops GitHub Pages from filtering the served files |
@@ -188,7 +212,7 @@ with 2 topics and 5 data words.
   nothing in this repo hardcodes an address: the API is the source of truth for
   *which* contract is live, and the logs are the source of truth for *what* it
   recorded.
-- A parity report covers the rounds it can see. Rounds that never happened cannot be
+- The active-round parity report covers the rounds it can see. Rounds that never happened cannot be
   checked, and rounds with zero work emit no event at all.
 
 ## License

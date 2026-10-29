@@ -18,6 +18,28 @@
   --maxw: 1080px;
 }
 
+/* ---------- portable evidence ---------- */
+
+.archive-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 14px; }
+.archive-actions .ghost { margin: 0; }
+.archive-primary { border-color: var(--gold-dim); color: var(--gold); }
+button:disabled { cursor: default; opacity: 0.4; }
+.archive-status { min-height: 2em; max-width: none; overflow-wrap: anywhere; }
+.archive-status[data-state="pass"] { color: var(--green); }
+.archive-status[data-state="fail"] { color: var(--red); }
+.archive-counts { display: flex; flex-wrap: wrap; gap: 16px 32px; margin: 18px 0 8px; }
+.archive-counts dd { font-size: 24px; font-family: var(--display); }
+.archive-hash { color: var(--ink-faint); font-size: 11px; overflow-wrap: anywhere; margin: 4px 0 18px; }
+.archive-offline { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+.archive-offline label { display: block; color: var(--ink); margin-bottom: 10px; }
+.archive-offline input { max-width: 100%; color: var(--ink-dim); font-family: var(--mono); font-size: 12px; }
+.archive-offline input::file-selector-button {
+  color: var(--ink); background: var(--bg-raised); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; margin-right: 12px; cursor: pointer;
+}
+.archive-offline .note { margin-top: 12px; }
+.archive-scope { font-size: 11px; color: var(--ink-faint); margin-bottom: 0; }
+
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -350,4 +372,8 @@ footer p { margin: 0 0 6px; max-width: 82ch; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 540px) {
+  .brand-sub { display: none; }
 }
