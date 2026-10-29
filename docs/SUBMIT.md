@@ -49,10 +49,13 @@ login. If a prompt asks for a transaction, close it and start over.
 5. You should land on your dashboard with the wallet address and the linked handle
    visible. If either is missing, finish that step before continuing.
 
-> Status check first: at the time this was written the Code lane is **not open yet**.
-> The Genesis page lists three ways to earn Aura - CLOUT, CODE, CAPITAL - and only
-> CLOUT is live; CODE reads "Not open yet", and `/genesis/code/new` returns a 404.
-> Do steps 1 and 2 now, then come back when the lane opens.
+> **Status.** The lane is being rolled out and the route comes and goes. Seven public
+> repositories already carry a Genesis challenge file committed between 2026-10-28
+> 19:45 UTC and 2026-10-29 03:42 UTC, so the flow works. At the time of writing
+> `/genesis/code/new` returns a 404 for anonymous visitors and the Genesis page still
+> labels CODE "Not open yet", which most likely means the route is only mounted for a
+> signed-in profile, or that the deployment was rolled back between submissions. If
+> the URL 404s for you after step 1, that is not your mistake - retry later.
 
 ## 2. Log in and reach the Code lane
 
@@ -103,9 +106,11 @@ Field notes:
 
 Save the submission. Genesis now shows:
 
-- a **file path** inside your repository, for example `.squeekchain/challenge.txt`
-  or a path of similar shape;
-- a **single line** of text to put in that file.
+- a **file path** inside your repository. In every submission observed so far this is
+  exactly `.squeekchain/verification.txt`;
+- a **single line** of text to put in that file. It looks like
+  `squeekchain:code:012ad80ea12c0f62a41a664e367bd9993dd462a7a9b2c957` - a fixed prefix
+  and a hex nonce. It is a public string, not a secret.
 
 Copy both somewhere safe — a note, a scratch file, anything. If the page offers a
 copy button, use it; retyping the line by hand is the most common way to fail
