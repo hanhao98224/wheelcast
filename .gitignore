@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# Build output and caches
+dist/
+build/
+.cache/
+.parcel-cache/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Hosting CLIs
+.vercel/
+.netlify/
+.wrangler/
+
+# Logs and local scratch
+*.log
+logs/
+tmp/
+.tmp/
+scratch/
+
+# Local overrides
+*.local
