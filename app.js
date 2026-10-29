@@ -169,6 +169,15 @@ function renderParity() {
     : "The initial difficulty reported by the API is outside the range derived from the first recorded round.";
   $("d-current").textContent = fmtInt(p.finalDifficulty);
 
+  const heroParity = $("hero-parity");
+  if (heroParity) heroParity.textContent = fmtInt(p.rounds);
+  const heroMismatch = $("hero-mismatch");
+  if (heroMismatch) {
+    const total = p.unitMismatches + p.difficultyMismatches;
+    heroMismatch.textContent = total === 0 ? "0 mismatches" : total + " mismatches";
+    heroMismatch.classList.toggle("is-bad", total > 0);
+  }
+
   const strip = $("parity-strip");
   strip.replaceChildren();
   const frag = document.createDocumentFragment();
@@ -350,6 +359,9 @@ function renderDeployment() {
     frag.appendChild(tr);
   }
   tbody.replaceChildren(frag);
+
+  const heroDrift = $("hero-drift");
+  if (heroDrift) heroDrift.textContent = published ? fmtInt(differ) : "—";
 
   if (!published) {
     chip.dataset.state = "pending";

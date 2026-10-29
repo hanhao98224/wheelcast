@@ -168,6 +168,34 @@ main {
 
 .intro p { margin: 0; color: var(--ink-dim); max-width: 74ch; }
 
+.intro .lede { font-size: 14.5px; line-height: 1.62; max-width: 76ch; }
+.lede strong { color: var(--ink); font-weight: 500; }
+
+.findings { display: flex; flex-wrap: wrap; gap: 14px 40px; margin-top: 22px; }
+
+.finding {
+  display: flex; flex-direction: column; gap: 3px;
+  border-left: 2px solid var(--line); padding-left: 14px;
+}
+
+.finding-num {
+  font-family: var(--display); font-size: 38px; font-weight: 600; line-height: 1;
+  color: var(--gold); font-variant-numeric: tabular-nums;
+}
+
+.finding-label {
+  font-size: 9.5px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--ink-faint); max-width: 32ch;
+}
+
+.finding-label em { font-style: normal; color: var(--green); }
+.finding-label em.is-bad { color: var(--red); }
+
+@media (max-width: 620px) {
+  .findings { gap: 14px 24px; }
+  .finding-num { font-size: 30px; }
+}
+
 .card {
   background: linear-gradient(180deg, rgba(24, 24, 32, 0.92), rgba(18, 18, 24, 0.92));
   border: 1px solid var(--line);

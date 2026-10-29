@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Wheelcast - an independent audit of Squeekchain's hamster proof-of-work</title>
+    <title>Wheelcast - Squeekchain's arithmetic, replayed and checked</title>
     <meta
       name="description"
-      content="Wheelcast replays every settled round of Squeekchain from the contract's own events, re-derives the whitepaper's difficulty formula and reports whether the deployed protocol matches its paper. It also forecasts block production."
+      content="Wheelcast decodes every RoundRecorded event from Squeekchain's SqueekCore and recomputes the whitepaper's integer rules from scratch. Every recorded round reproduces exactly. The same pass shows the deployment record in the docs describes a contract that no longer settles."
     />
     <meta name="theme-color" content="#101015" />
     <meta property="og:title" content="Wheelcast - Squeekchain formula audit" />
@@ -42,13 +42,27 @@
 
     <main>
       <section class="intro">
-        <h1>The hamster mines. We check the arithmetic.</h1>
-        <p>
-          Squeekchain publishes an exact integer rule for turning wheel revolutions into
-          blocks. Wheelcast reads every settled round straight from <code>SqueekCore</code>,
-          replays that rule from the deployment block, and reports whether the deployed
-          contract still agrees with its own whitepaper.
+        <p class="eyebrow">Squeekchain &middot; Sepolia &middot; read-only</p>
+        <h1>Replayed from the deployment block.<br />Not one round disagrees.</h1>
+        <p class="lede">
+          Squeekchain's whitepaper defines block accounting as exact integer arithmetic.
+          Wheelcast decodes every <code>RoundRecorded</code> event and recomputes it from
+          the paper &mdash; <strong>the check never calls the contract's own view functions</strong>,
+          so agreement actually means something. Every recorded round reproduces to the unit.
+          The same pass turned up a second thing:
+          <a href="#deploy-card">the deployment record in the docs describes a contract that
+          is no longer receiving settlements</a>.
         </p>
+        <div class="findings">
+          <div class="finding">
+            <span class="finding-num" id="hero-parity">&mdash;</span>
+            <span class="finding-label">rounds replayed &middot; <em id="hero-mismatch">checking</em></span>
+          </div>
+          <div class="finding">
+            <span class="finding-num" id="hero-drift">&mdash;</span>
+            <span class="finding-label">of 8 published fields differ from the live deployment</span>
+          </div>
+        </div>
       </section>
 
       <section class="hero" aria-label="Live state">
