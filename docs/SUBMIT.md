@@ -49,13 +49,22 @@ login. If a prompt asks for a transaction, close it and start over.
 5. You should land on your dashboard with the wallet address and the linked handle
    visible. If either is missing, finish that step before continuing.
 
-> **Status.** The lane is being rolled out and the route comes and goes. Seven public
-> repositories already carry a Genesis challenge file committed between 2026-10-28
-> 19:45 UTC and 2026-10-29 03:42 UTC, so the flow works. At the time of writing
-> `/genesis/code/new` returns a 404 for anonymous visitors and the Genesis page still
-> labels CODE "Not open yet", which most likely means the route is only mounted for a
-> signed-in profile, or that the deployment was rolled back between submissions. If
-> the URL 404s for you after step 1, that is not your mistake - retry later.
+> **Status, as of 2026-10-30.** The submission dialog no longer offers the GitHub
+> route at all. Reading the shipped bundle, the lane defines exactly three origins:
+> imd -> "IMD", website -> "Direct submission", independent -> "GitHub (retired)".
+> GitHub is **retired**, not paused, so the challenge-file flow in sections 5 and 6
+> below can no longer be used. Two paths remain:
+>
+> - **IMD** - link a job whose first payment came from a wallet verified on your
+>   profile. Costs 0.5 IMD per job. This is the only path open right now.
+> - **Direct submission** - submit your site's own domain and prove control with a
+>   DNS TXT record. Currently paused, and it **rejects shared hosts**: the bundle
+>   names vercel.app, github.io, netlify.app, pages.dev and duckdns.org as
+>   unsupported, because you cannot add DNS records there. This project's demo on
+>   hanhao98224.github.io is therefore not eligible; it would need a domain of its own.
+>
+> Each member may have one direct submission. Sections 5 and 6 are kept only as a
+> record of the flow that was attempted before GitHub submissions were retired.
 
 ## 2. Log in and reach the Code lane
 
