@@ -405,3 +405,32 @@ footer p { margin: 0 0 6px; max-width: 82ch; }
 @media (max-width: 540px) {
   .brand-sub { display: none; }
 }
+
+/* ---------- ABI drift ---------- */
+
+.abi-check { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
+
+.abi-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.abi-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(64px, auto)) minmax(84px, auto);
+  gap: 12px; align-items: baseline;
+  padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 9px;
+  background: rgba(255, 255, 255, 0.015);
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+
+.abi-name { color: var(--ink); }
+.abi-metric { color: var(--ink-dim); }
+.abi-metric span { color: var(--ink-faint); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; display: block; }
+.abi-verdict { text-align: right; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+.abi-verdict.ok { color: var(--green); }
+.abi-verdict.partial { color: var(--gold); }
+.abi-verdict.bad { color: var(--red); }
+.abi-pending { margin: 0; }
+
+@media (max-width: 640px) {
+  .abi-row { grid-template-columns: 1fr 1fr; }
+  .abi-verdict { text-align: left; }
+}

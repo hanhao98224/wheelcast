@@ -25,8 +25,11 @@ import {
   readCache,
   writeCache,
   getPublishedDeployment,
+  getPublishedAbi,
+  fetchTopicCounts,
   ChainError,
 } from "./lib/chain.js";
+import { topicOf, eventSignature } from "./lib/keccak.js";
 
 const RING_CIRCUMFERENCE = { r112: 2 * Math.PI * 112, r90: 2 * Math.PI * 90 };
 const POLL_MS = 15000;
@@ -384,6 +387,107 @@ async function loadPublished() {
   renderDeployment();
 }
 
+
+/* ------------------------------- ABI drift ------------------------------ */
+
+function renderAbiRows(results) {
+  const host = $("abi-rows");
+  if (!host) return;
+  host.replaceChildren();
+  const frag = document.createDocumentFragment();
+
+  for (const r of results) {
+    const row = document.createElement("div");
+    row.className = "abi-row";
+
+    const name = document.createElement("span");
+    name.className = "abi-name";
+    name.textContent = r.name;
+
+    const mk = (label, value) => {
+      const el = document.createElement("span");
+      el.className = "abi-metric";
+      const cap = document.createElement("span");
+      cap.textContent = label;
+      el.append(cap, document.createTextNode(value));
+      return el;
+    };
+
+    const verdict = document.createElement("span");
+    verdict.className = "abi-verdict";
+
+    if (r.error) {
+      verdict.classList.add("bad");
+      verdict.textContent = "unavailable";
+      row.append(name, mk("published events", "-"), mk("observed topics", "-"), mk("matched", "-"), verdict);
+      row.title = r.error;
+    } else {
+      const tone = r.matched === 0 ? "bad" : r.matched < r.published ? "partial" : "ok";
+      verdict.classList.add(tone);
+      verdict.textContent = fmtInt(r.matched) + " of " + fmtInt(r.published) + " seen";
+      row.append(
+        name,
+        mk("published events", fmtInt(r.published)),
+        mk("observed topics", fmtInt(r.observed)),
+        mk("matched", fmtInt(r.matched)),
+        verdict,
+      );
+      row.title = r.missing.length
+        ? "Published events never seen on chain: " + r.missing.join(", ")
+        : "Every published event signature appears in the live logs.";
+    }
+    frag.appendChild(row);
+  }
+  host.replaceChildren(frag);
+}
+
+async function loadAbiCheck() {
+  const live = state.core;
+  if (!live) return;
+  const targets = [
+    {
+      name: "SqueekCore",
+      abi: "SqueekCore",
+      address: live.identities?.core,
+      from: Number(live.chain?.deploymentBlock),
+    },
+    {
+      name: "SqueekMining",
+      abi: "SqueekMining",
+      address: state.settlements?.mining?.economy?.mining,
+      from: Number(state.settlements?.chain?.economyDeploymentBlock ?? state.settlements?.chain?.deploymentBlock),
+    },
+  ];
+
+  const results = [];
+  for (const t of targets) {
+    try {
+      if (!t.address || !Number.isFinite(t.from)) throw new Error("address or deployment block unknown");
+      const [abi, counts] = await Promise.all([
+        getPublishedAbi(t.abi),
+        fetchTopicCounts({ address: t.address, fromBlock: t.from, toBlock: state.headBlock ?? t.from }),
+      ]);
+      const events = (Array.isArray(abi) ? abi : []).filter((e) => e.type === "event");
+      const published = new Set(events.map((e) => topicOf(eventSignature(e)).toLowerCase()));
+      const observed = new Set(Array.from(counts.keys(), (k) => k.toLowerCase()));
+      const matched = Array.from(published).filter((p) => observed.has(p));
+      results.push({
+        name: t.name,
+        published: published.size,
+        observed: observed.size,
+        matched: matched.length,
+        missing: events
+          .filter((e) => !observed.has(topicOf(eventSignature(e)).toLowerCase()))
+          .map((e) => e.name),
+      });
+    } catch (err) {
+      results.push({ name: t.name, error: String(err?.message ?? err) });
+    }
+  }
+  renderAbiRows(results);
+}
+
+
 /* --------------------------------- loading ------------------------------ */
 
 async function loadIdentity() {
@@ -414,8 +518,10 @@ async function loadHistory(force = false) {
     const cached = readCache(state.coreAddress, state.deploymentBlock);
     let rounds = cached?.rounds;
     let head = cached?.latest;
+    if (head != null) state.headBlock = head;
     if (!rounds) {
       head = await latestBlock();
+      state.headBlock = head;
       rounds = await fetchRounds({
         core: state.coreAddress,
         fromBlock: state.deploymentBlock,
@@ -537,6 +643,7 @@ async function boot() {
   await Promise.all([loadSettlements(), loadPublished()]);
   await pollStatus();
   await loadHistory(true);
+  loadAbiCheck();
   setInterval(pollStatus, POLL_MS);
   setInterval(() => renderClock(), 1000);
   setInterval(() => loadHistory(false), HISTORY_MS);

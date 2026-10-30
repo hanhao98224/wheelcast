@@ -181,6 +181,18 @@
           settlement pipeline use another. Both are read at runtime and compared field by field.
           Wheelcast follows the <em>live</em> deployment, because that is where the rounds are.
         </p>
+        <div class="abi-check">
+          <p class="eyebrow">published ABI vs live logs</p>
+          <p class="note">
+            Every event signature in the published ABI is hashed to its topic and matched
+            against the topics the live contract actually emits. An ABI that matches nothing
+            on chain describes a different contract, however correct it looks on its own.
+          </p>
+          <div class="abi-rows" id="abi-rows">
+            <p class="note abi-pending">reading published ABIs and live logs...</p>
+          </div>
+        </div>
+
         <div class="table-scroll">
           <table id="deploy-table">
             <thead>
